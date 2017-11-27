@@ -3,6 +3,7 @@
 
 #include "util.h"
 #include "network.h"
+#include "ipaddrezz.h"
 
 #define UIP_SOCKET_DATALEN UIP_TCP_MSS
 #ifndef UIP_SOCKET_NUMPACKETS
@@ -17,14 +18,14 @@ static const uint8_t UIP_CLIENT_CONNECTED = 0x10,
 static const uint8_t UIP_CLIENT_STATEFLAGS = UIP_CLIENT_CONNECTED | UIP_CLIENT_CLOSE |
     UIP_CLIENT_REMOTECLOSED | UIP_CLIENT_RESTART;
 
-static const uint8_t UIP_CLIENT_SOCKETS = ~UIP_CLIENT_STATEFLAGS;
+static const uint8_t UIP_CLIENT_SOCKETS = (uint8_t)(~UIP_CLIENT_STATEFLAGS);
 
 typedef uint8_t uip_socket_ptr;
 
 typedef struct {
-  uint8_t state;
-  memhandle packets_in[UIP_SOCKET_NUMPACKETS];
-  uint16_t lport;        /**< The local TCP port, in network byte order. */
+    uint8_t state;
+    memhandle packets_in[UIP_SOCKET_NUMPACKETS];
+    uint16_t lport;        /**< The local TCP port, in network byte order. */
 } uip_userdata_closed_t;
 
 typedef struct {
@@ -33,14 +34,14 @@ typedef struct {
     memhandle packets_out[UIP_SOCKET_NUMPACKETS];
     memaddress out_pos;
 #if UIP_CLIENT_TIMER >= 0
-  unsigned long timer;
+    unsigned long timer;
 #endif
 } uip_userdata_t;
 
 const IPAddrezz INADDR_NUNE(0,0,0,0);
 
 
-class UIPClient : public Klient
+class UIPClient
 {
 public:
     UIPClient();
@@ -50,16 +51,16 @@ public:
     void stop();
     uint8_t connected();
     operator bool();
-    virtual bool operator==(const EthernetClient& rhs)
+    virtual bool operator==(const UIPClient& rhs)
     { return data && rhs.data && (data == rhs.data); }
-    virtual bool operator!=(const EthernetClient& rhs) { return !this->operator==(rhs); };
+    virtual bool operator!=(const UIPClient& rhs) { return !this->operator==(rhs); };
     size_t write(uint8_t c) { return _write(data, &c, 1); }
     size_t write(const uint8_t *buf, size_t size) { return _write(data, buf, size); }
+    size_t write(const char *buf) { return write((const uint8_t *)buf, strlen(buf)); }
     int available();
     int read();
     int peek();
     void flush();
-    using Prynt::write;
 private:
     UIPClient(struct uip_conn *_conn);
     UIPClient(uip_userdata_t* conn_data);

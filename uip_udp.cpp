@@ -156,15 +156,14 @@ UIPUDP::available()
 }
 
 // Read a single byte from the current packet
-int
-UIPUDP::read()
+int UIPUDP::read()
 {
-  unsigned char c;
-  if (read(&c,1) > 0)
-    {
-      return c;
-    }
-  return -1;
+    uint8_t c;
+
+    if (read(&c,1) > 0)
+        return c;
+    
+    return -1;
 }
 
 // Read up to len bytes from the current packet and place them into buffer
@@ -207,9 +206,9 @@ int UIPUDP::peek()
 // Finish reading the current packet
 void UIPUDP::flush()
 {
-  UIPEthernetClass::tick();
-  Enc28J60Network::freeBlock(appdata.packet_in);
-  appdata.packet_in = NOBLOCK;
+    UIPEthernetClass::tick();
+    Enc28J60Network::freeBlock(appdata.packet_in);
+    appdata.packet_in = NOBLOCK;
 }
 
 // Return the IP address of the host who sent the current incoming packet

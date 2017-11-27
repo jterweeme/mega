@@ -7,12 +7,15 @@ Mega eth CS: D53
 #include "uip_client.h"
 #include <avr/interrupt.h>
 #include "misc.h"
+#include "fyle.h"
+#include "zd.h"
 #include <stdio.h>
 
 #define F_CPU 16000000UL
 #include <util/delay.h>
 
 EthernetServer server = EthernetServer(80);
+Fyle myFile;
 
 uint32_t g_millis = 0;
 
@@ -46,11 +49,10 @@ int main()
 
     uint8_t mac[6] = {0x00,0x01,0x02,0x03,0x04,0x05};
     serial.write("begin ethernet\r\n");
-    IPAddrezz myIP(192,168,200,56);
-    Ethernet.begin(mac, myIP);
+    //IPAddrezz myIP(192,168,200,56);
+    Ethernet.begin(mac);
     serial.write("My IP address: \r\n");
     uint32_t ip = Ethernet.localIP();
-    //ip = millis();
     
     for (int8_t i = 7; i >= 0; i--)
         serial.write(nibble(ip >> (i << 2) & 0xf));
@@ -81,23 +83,12 @@ int main()
                         client.write("Content-Type: text/html\r\n");
                         client.write("Connection: close\r\n");
                         client.write("Refresh: 5\r\n\r\n");
-                        client.write("<!DOCTYPE HTML>\r\n");
-                        client.write("<html>\r\n");
+                        
+                        if (myFile)
+                            while (myFile.available())
+                                client.write(myFile.read());
 
-                        for (int analogChannel = 0; analogChannel < 6; analogChannel++)
-                        {
-                            int sensorReading = 100;
-                            client.write("analog input ");
-                            char buf[100];
-                            snprintf(buf, 100, "%u", analogChannel);
-                            client.write(buf);
-                            client.write(" is ");
-                            snprintf(buf, 100, "%u", g_count++);
-                            client.write(buf);
-                            client.write("<br />\r\n");
-                        }
-
-                        client.write("</html>\r\n");
+                        myFile.close();
                         break;
                     }
 
@@ -107,9 +98,9 @@ int main()
                         currentLineIsBlank = false;
                 }
             }
-
             _delay_ms(1);
             client.stop();
+            //Serial.println("client disonnected");
         }
     }
 

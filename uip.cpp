@@ -3,14 +3,11 @@
 #include "uip.h"
 #include <string.h>
 
-#define UIP_RTO 3
-#define UIP_MAXRTX      8
+static const uint8_t UIP_RTO = 3, UIP_MAXRTX = 8;
 #define UIP_MAXSYNRTX      5
 #define UIP_FIXEDETHADDR 0
 
-static const uint8_t UIP_TTL = 64,
-    UIP_REASSEMBLY = 0,
-    UIP_REASS_MAXAGE = 40;
+static const uint8_t UIP_TTL = 64, UIP_REASSEMBLY = 0, UIP_REASS_MAXAGE = 40;
 
 void uip_add32(uint8_t *op32, uint16_t op16);
 uint16_t uip_chksum(uint16_t *buf, uint16_t len);
@@ -213,13 +210,8 @@ uint16_t uip_ipchksum(void)
 
 static uint16_t upper_layer_chksum(uint8_t proto)
 {
-    uint16_t upper_layer_len;
-    uint16_t sum;
-#if UIP_CONF_IPV6
-    upper_layer_len = (((uint16_t)(BUF->len[0]) << 8) + BUF->len[1]);
-#else /* UIP_CONF_IPV6 */
+    uint16_t upper_layer_len, sum;
     upper_layer_len = (((uint16_t)(BUF->len[0]) << 8) + BUF->len[1]) - UIP_IPH_LEN;
-#endif /* UIP_CONF_IPV6 */
     sum = upper_layer_len + proto;
     sum = chksum(sum, (uint8_t *)&BUF->srcipaddr[0], 2 * sizeof(uip_ipaddr_t));
     sum = chksum(sum, &uip_buf[UIP_IPH_LEN + UIP_LLH_LEN], upper_layer_len);
@@ -303,14 +295,11 @@ uip_connect(uip_ipaddr_t *ripaddr, uint16_t rport)
   }
   
   conn->tcpstateflags = UIP_SYN_SENT;
-
   conn->snd_nxt[0] = iss[0];
   conn->snd_nxt[1] = iss[1];
   conn->snd_nxt[2] = iss[2];
   conn->snd_nxt[3] = iss[3];
-
   conn->initialmss = conn->mss = UIP_TCP_MSS;
-  
   conn->len = 1;   /* TCP length of the SYN is one. */
   conn->nrtx = 0;
   conn->timer = 1; /* Send the SYN next time around. */
@@ -325,7 +314,6 @@ uip_connect(uip_ipaddr_t *ripaddr, uint16_t rport)
 }
 #endif /* UIP_ACTIVE_OPEN */
 
-#if UIP_UDP
 struct uip_udp_conn *uip_udp_new(uip_ipaddr_t *ripaddr, uint16_t rport)
 {
     register struct uip_udp_conn *conn;
@@ -365,7 +353,6 @@ again:
   
   return conn;
 }
-#endif /* UIP_UDP */
 
 void uip_unlisten(uint16_t port)
 {

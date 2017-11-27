@@ -5,13 +5,8 @@
 #define F_CPU 16000000UL
 #include <util/delay.h>
 
-// set CS to 0 = active
-#define CSACTIVE digitalWrite(ENC28J60_CONTROL_CS, LOW)
 #define CSACTIVE (PORTB &= ~(1<<0))
-// set CS to 1 = passive
-#define CSPASSIVE digitalWrite(ENC28J60_CONTROL_CS, HIGH)
 #define CSPASSIVE (PORTB |= 1<<0)
-//
 #define waitspi() while(!(SPSR&(1<<SPIF)))
 
 uint16_t Enc28J60Network::nextPacketPtr;

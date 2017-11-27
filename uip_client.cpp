@@ -29,18 +29,6 @@ bool IPAddrezz::operator==(const uint8_t* addr)
     return memcmp(addr, _address.a8, sizeof(_address)) == 0;
 }
 
-size_t IPAddrezz::printTo(Prynt& p) const
-{
-    size_t n = 0;
-    for (int i =0; i < 3; i++)
-    {
-        n += p.print(_address.a8[i], 10);
-        n += p.print('.');
-    }
-    n += p.print(_address.a8[3], 10);
-    return n;
-}
-
 uip_userdata_t UIPClient::all_data[UIP_CONNS];
 
 UIPClient::UIPClient() :

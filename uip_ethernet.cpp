@@ -20,6 +20,7 @@ UIPEthernetClass::UIPEthernetClass()
 
 int UIPEthernetClass::begin(const uint8_t* mac)
 {
+#if 0
     static DhcpClass s_dhcp;
     _dhcp = &s_dhcp;
     init(mac);
@@ -31,6 +32,9 @@ int UIPEthernetClass::begin(const uint8_t* mac)
             _dhcp->getSubnetMask());
     }
     return ret;
+#else
+    return 0;
+#endif
 }
 
 void UIPEthernetClass::begin(const uint8_t* mac, IPAddrezz ip)
@@ -97,23 +101,23 @@ IPAddrezz UIPEthernetClass::localIP()
 
 IPAddrezz UIPEthernetClass::subnetMask()
 {
-  IPAddrezz ret;
-  uip_ipaddr_t a;
-  uip_getnetmask(a);
-  return ip_addr_uip(a);
+    IPAddrezz ret;
+    uip_ipaddr_t a;
+    uip_getnetmask(a);
+    return ip_addr_uip(a);
 }
 
 IPAddrezz UIPEthernetClass::gatewayIP()
 {
-  IPAddrezz ret;
-  uip_ipaddr_t a;
-  uip_getdraddr(a);
-  return ip_addr_uip(a);
+    IPAddrezz ret;
+    uip_ipaddr_t a;
+    uip_getdraddr(a);
+    return ip_addr_uip(a);
 }
 
 IPAddrezz UIPEthernetClass::dnsServerIP()
 {
-  return _dnsServerAddress;
+    return _dnsServerAddress;
 }
 
 void UIPEthernetClass::tick()
