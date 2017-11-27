@@ -523,18 +523,26 @@ class SdVolume {
   uint8_t fatPutEOC(uint32_t cluster) {
     return fatPut(cluster, 0x0FFFFFFF);
   }
-  uint8_t freeChain(uint32_t cluster);
-  uint8_t isEOC(uint32_t cluster) const {
-    return  cluster >= (fatType_ == 16 ? FAT16EOC_MIN : FAT32EOC_MIN);
-  }
-  uint8_t readBlock(uint32_t block, uint8_t* dst) {
-    return sdCard_->readBlock(block, dst);}
-  uint8_t readData(uint32_t block, uint16_t offset,
-    uint16_t count, uint8_t* dst) {
-      return sdCard_->readData(block, offset, count, dst);
-  }
-  uint8_t writeBlock(uint32_t block, const uint8_t* dst) {
-    return sdCard_->writeBlock(block, dst);
-  }
+    uint8_t freeChain(uint32_t cluster);
+
+    uint8_t isEOC(uint32_t cluster) const
+    {
+        return  cluster >= (fatType_ == 16 ? FAT16EOC_MIN : FAT32EOC_MIN);
+    }
+
+    uint8_t readBlock(uint32_t block, uint8_t* dst) { return sdCard_->readBlock(block, dst);}
+
+    uint8_t readData(uint32_t block, uint16_t offset, uint16_t count, uint8_t* dst)
+    {
+        return sdCard_->readData(block, offset, count, dst);
+    }
+
+    uint8_t writeBlock(uint32_t block, const uint8_t* dst)
+    {
+        return sdCard_->writeBlock(block, dst);
+    }
 };
 #endif  // SdFat_h
+
+
+

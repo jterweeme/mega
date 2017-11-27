@@ -1,7 +1,5 @@
-#ifndef _UTIL_H_
-#define _UTIL_H_
-
-#if 0
+#ifndef _UIP_TIMER_H_
+#define _UIP_TIMER_H_
 #include <stddef.h>
 #include <stdint.h>
 #include <string.h>
@@ -22,7 +20,8 @@ clock_time_t clock_time(void);
 #endif
 
 
-struct uip_timer {
+struct uip_timer
+{
   clock_time_t start;
   clock_time_t interval;
 };
@@ -31,9 +30,8 @@ void uip_timer_set(struct uip_timer *t, clock_time_t interval);
 void uip_timer_reset(struct uip_timer *t);
 void uip_timer_restart(struct uip_timer *t);
 int uip_timer_expired(struct uip_timer *t);
-#endif
+
 
 #endif
-
 
 

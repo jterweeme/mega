@@ -12,8 +12,6 @@ Mega eth CS: D53
 #define F_CPU 16000000UL
 #include <util/delay.h>
 
-EthernetServer server = EthernetServer(80);
-
 uint32_t g_millis = 0;
 
 ISR(TIMER0_OVF_vect)
@@ -37,7 +35,7 @@ int main()
 {
     // 16,000,000/16,000 = 1000
     // 16,000 / 256 = 62
-
+    UIPServer server = UIPServer(80);
     Serial serial;
     serial.init();
     TCCR0B = CS02; // | CS00;
@@ -47,9 +45,9 @@ int main()
     uint8_t mac[6] = {0x00,0x01,0x02,0x03,0x04,0x05};
     serial.write("begin ethernet\r\n");
     IPAddrezz myIP(192,168,200,56);
-    Ethernet.begin(mac, myIP);
+    UIPEthernet.begin(mac, myIP);
     serial.write("My IP address: \r\n");
-    uint32_t ip = Ethernet.localIP();
+    uint32_t ip = UIPEthernet.localIP();
     //ip = millis();
     
     for (int8_t i = 7; i >= 0; i--)

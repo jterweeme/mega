@@ -1,5 +1,5 @@
 #include "dhcp.h"
-#include "util.h"
+#include "uip_timer.h"
 #include <string.h>
 #include <stdlib.h>
 

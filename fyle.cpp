@@ -131,18 +131,14 @@ uint32_t Fyle::size() {
   return _file->fileSize();
 }
 
-void Fyle::close() {
-  if (_file) {
-    _file->close();
-    free(_file); 
-    _file = 0;
-
-    /* for debugging file open/close leaks
-    nfilecount--;
-    Serial.print("Deleted ");
-    Serial.println(nfilecount, DEC);
-    */
-  }
+void Fyle::close()
+{
+    if (_file)
+    {
+        _file->close();
+        free(_file); 
+        _file = 0;
+    }
 }
 
 Fyle::operator bool() {

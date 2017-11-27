@@ -32,11 +32,8 @@ bool getNextPathComponent2(char *path, unsigned int *p_offset, char *buffer)
 
 
 bool walkPath2(char *filepath, SdFile& parentDir,
-		 bool(*callback)(SdFile& parentDir,
-				     char *filePathComponent,
-				     bool isLastComponent,
-				     void *object),
-		 void *object = NULL)
+		 bool(*callback)(SdFile& parentDir, char *filePathComponent,
+				     bool isLastComponent, void *object), void *object = NULL)
 {
     SdFile subfile1;
     SdFile subfile2;
@@ -249,7 +246,7 @@ Fyle ZD::open(const char *filepath, uint8_t mode)
 
     if (parentdir.isRoot())
     {
-        if (!file.open(g_zd.root, filepath, mode))
+        if (!file.open(this->root, filepath, mode))     // verandering hier (this)
             return Fyle();
     }
     else
@@ -332,11 +329,11 @@ Fyle Fyle::openNextFile(uint8_t mode)
   return Fyle();
 }
 
-void Fyle::rewindDirectory(void)
+void Fyle::rewindDirectory()
 {  
-  if (isDirectory())
-    _file->rewind();
+    if (isDirectory())
+        _file->rewind();
 }
 
-ZD g_zd;
+
 

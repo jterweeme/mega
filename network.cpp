@@ -1,6 +1,7 @@
 #include "network.h"
 #include "util.h"
 #include <avr/io.h>
+#include <string.h>
 
 #define F_CPU 16000000UL
 #include <util/delay.h>

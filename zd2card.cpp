@@ -18,7 +18,10 @@
  * <http://www.gnu.org/licenses/>.
  */
 #include "zd2card.h"
-#include "util.h"
+//#include "util.h"
+#include <avr/io.h>
+
+extern uint32_t millis();
 
 #ifndef SOFTWARE_SPI
 // functions for hardware SPI
@@ -373,8 +376,8 @@ uint8_t Sd2Card::readBlock(uint32_t block, uint8_t* dst) {
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-uint8_t Sd2Card::readData(uint32_t block,
-        uint16_t offset, uint16_t count, uint8_t* dst) {
+uint8_t Sd2Card::readData(uint32_t block, uint16_t offset, uint16_t count, uint8_t* dst)
+{
   uint16_t n;
   if (count == 0) return true;
   if ((count + offset) > 512) {
@@ -573,16 +576,15 @@ uint8_t Sd2Card::writeBlock(uint32_t blockNumber, const uint8_t* src) {
     goto fail;
   }
   // response is r2 so get and check two bytes for nonzero
-  if (cardCommand(CMD13, 0) || spiRec()) {
-    error(SD_CARD_ERROR_WRITE_PROGRAMMING);
-    goto fail;
-  }
-  chipSelectHigh();
-  return true;
-
- fail:
-  chipSelectHigh();
-  return false;
+    if (cardCommand(CMD13, 0) || spiRec()) {
+        error(SD_CARD_ERROR_WRITE_PROGRAMMING);
+        goto fail;
+    }
+    chipSelectHigh();
+    return true;
+fail:
+    chipSelectHigh();
+    return false;
 }
 //------------------------------------------------------------------------------
 /** Write one data block in a multiple block write sequence */
@@ -668,12 +670,7 @@ uint8_t Sd2Card::writeStart(uint32_t blockNumber, uint32_t eraseCount) {
   chipSelectHigh();
   return false;
 }
-//------------------------------------------------------------------------------
-/** End a write multiple blocks sequence.
- *
-* \return The value one, true, is returned for success and
- * the value zero, false, is returned for failure.
- */
+
 uint8_t Sd2Card::writeStop()
 {
     if (!waitNotBusy(SD_WRITE_TIMEOUT))
@@ -686,9 +683,11 @@ uint8_t Sd2Card::writeStop()
 
     chipSelectHigh();
     return true;
-
 fail:
     error(SD_CARD_ERROR_STOP_TRAN);
     chipSelectHigh();
     return false;
 }
+
+
+

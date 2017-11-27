@@ -22,7 +22,8 @@ static const uint8_t UIP_CLIENT_SOCKETS = (uint8_t)(~UIP_CLIENT_STATEFLAGS);
 
 typedef uint8_t uip_socket_ptr;
 
-typedef struct {
+typedef struct
+{
     uint8_t state;
     memhandle packets_in[UIP_SOCKET_NUMPACKETS];
     uint16_t lport;        /**< The local TCP port, in network byte order. */

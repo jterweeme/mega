@@ -95,17 +95,22 @@ uint8_t SdVolume::allocContiguous(uint32_t count, uint32_t* curCluster) {
 
   return true;
 }
-//------------------------------------------------------------------------------
-uint8_t SdVolume::cacheFlush(void) {
-  if (cacheDirty_) {
-    if (!sdCard_->writeBlock(cacheBlockNumber_, cacheBuffer_.data)) {
-      return false;
-    }
-    // mirror FAT tables
-    if (cacheMirrorBlock_) {
-      if (!sdCard_->writeBlock(cacheMirrorBlock_, cacheBuffer_.data)) {
-        return false;
-      }
+
+uint8_t SdVolume::cacheFlush()
+{
+    if (cacheDirty_)
+    {
+        if (!sdCard_->writeBlock(cacheBlockNumber_, cacheBuffer_.data))
+        {
+            return false;
+        }
+
+        // mirror FAT tables
+        if (cacheMirrorBlock_)
+        {
+            if (!sdCard_->writeBlock(cacheMirrorBlock_, cacheBuffer_.data)) {
+                return false;
+            }
       cacheMirrorBlock_ = 0;
     }
     cacheDirty_ = 0;
@@ -274,8 +279,7 @@ uint8_t SdVolume::init(Sd2Card* dev, uint8_t part) {
   dataStartBlock_ = rootDirStart_ + ((32 * bpb->rootDirEntryCount + 511)/512);
 
   // total blocks for FAT16 or FAT32
-  uint32_t totalBlocks = bpb->totalSectors16 ?
-                           bpb->totalSectors16 : bpb->totalSectors32;
+  uint32_t totalBlocks = bpb->totalSectors16 ? bpb->totalSectors16 : bpb->totalSectors32;
   // total data blocks
   clusterCount_ = totalBlocks - (dataStartBlock_ - volumeStartBlock);
 

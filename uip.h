@@ -170,15 +170,12 @@ void uip_setipid(uint16_t id);
                                  uip_process(UIP_POLL_REQUEST); } while (0)
 
 
-#if UIP_UDP
 #define uip_udp_periodic(conn) do { uip_udp_conn = &uip_udp_conns[conn]; \
                                 uip_process(UIP_UDP_TIMER); } while (0)
 
 #define uip_udp_periodic_conn(conn) do { uip_udp_conn = conn; \
                                          uip_process(UIP_UDP_TIMER); } while (0)
 
-
-#endif /* UIP_UDP */
 
 extern uint8_t uip_buf[UIP_BUFSIZE+2];
 void uip_listen(uint16_t port);
@@ -667,13 +664,7 @@ struct uip_udpip_hdr
 #define UIP_PROTO_TCP   6
 #define UIP_PROTO_UDP   17
 #define UIP_PROTO_ICMP6 58
-
-#if UIP_CONF_IPV6
-#define UIP_IPH_LEN    40
-#else /* UIP_CONF_IPV6 */
 #define UIP_IPH_LEN    20    /* Size of IP header */
-#endif /* UIP_CONF_IPV6 */
-
 #define UIP_UDPH_LEN    8    /* Size of UDP header */
 #define UIP_TCPH_LEN   20    /* Size of TCP header */
 #define UIP_IPUDPH_LEN (UIP_UDPH_LEN + UIP_IPH_LEN)

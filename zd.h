@@ -42,6 +42,4 @@ private:
     friend bool callback_openPath(SdFile&, char *, bool, void *); 
 };
 
-extern ZD g_zd;
-
 #endif

@@ -1,18 +1,13 @@
 #ifndef _IPADDREZZ_H_
 #define _IPADDREZZ_H_
+#include <string.h>
 
-#define htons(x) ( ((x)<<8) | (((x)>>8)&0xFF) )
-#define ntohs(x) htons(x)
+static constexpr uint32_t htonl(uint32_t x)
+{
+    return x<<24 & 0xff000000 | x<<8 & 0xff0000 | x>>8 & 0xff00 | x>>24 & 0xff;
+}
 
-#define htonl(x) ( ((x)<<24 & 0xFF000000UL) | \
-                   ((x)<< 8 & 0x00FF0000UL) | \
-                   ((x)>> 8 & 0x0000FF00UL) | \
-                   ((x)>>24 & 0x000000FFUL) )
-#define ntohl(x) htonl(x)
-
-#define Ethernet UIPEthernet
-#define EthernetServer UIPServer
-#define EthernetUDP UIPUDP
+static constexpr uint32_t ntohl(uint32_t x) { return htonl(x); }
 
 class IPAddrezz
 {
@@ -21,9 +16,8 @@ private:
         uint8_t a8[4];  // IPv4 address
         uint32_t a32;
     } _address;
-
-    uint8_t* raw_address() { return _address.a8; }
 public:
+    uint8_t* raw_address() { return _address.a8; }
     IPAddrezz() { memset(_address.a8, 0, sizeof(_address)); }
     IPAddrezz(uint8_t first_octet, uint8_t second_octet, uint8_t third_octet, uint8_t fourth_octet);
     IPAddrezz(uint32_t address) { _address.a32 = address; }
@@ -35,9 +29,6 @@ public:
     uint8_t& operator[](int index) { return _address.a8[index]; };
     IPAddrezz& operator=(const uint8_t *address);
     IPAddrezz& operator=(uint32_t address);
-    friend class UDeeP;
-    friend class Klient;
-    friend class DNSClient;
 };
 
 #endif

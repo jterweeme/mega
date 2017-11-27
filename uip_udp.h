@@ -1,5 +1,5 @@
-#ifndef UIPUDP_H
-#define UIPUDP_H
+#ifndef _UIPUDP_H_
+#define _UIPUDP_H_
 
 #include "util.h"
 #include "uip.h"

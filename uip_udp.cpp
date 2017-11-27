@@ -4,8 +4,7 @@
 #include "uip.h"
 #include "arp.h"
 
-#if UIP_UDP
-#define UIP_ARPHDRSIZE 42
+uint8_t UIP_ARPHDRSIZE = 42;
 #define UDPBUF ((struct uip_udpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
 UIPUDP::UIPUDP() : _uip_udp_conn(NULL)
@@ -115,10 +114,9 @@ int UIPUDP::endPacket()
 }
 
 // Write a single byte into the packet
-size_t
-UIPUDP::write(uint8_t c)
+size_t UIPUDP::write(uint8_t c)
 {
-  return write(&c,1);
+    return write(&c,1);
 }
 
 // Write size bytes from buffer into the packet
@@ -224,8 +222,7 @@ uint16_t UIPUDP::remotePort()
 }
 
 // uIP callback function
-
-void uipudp_appcall(void)
+void uipudp_appcall()
 {
     if (uip_udp_userdata_t *data = (uip_udp_userdata_t *)(uip_udp_conn->appstate))
     {
@@ -259,6 +256,7 @@ void uipudp_appcall(void)
 void UIPUDP::_send(uip_udp_userdata_t *data)
 {
     uip_arp_out(); //add arp
+
     if (uip_len == UIP_ARPHDRSIZE)
     {
         UIPEthernetClass::uip_packet = NOBLOCK;
@@ -273,6 +271,5 @@ void UIPUDP::_send(uip_udp_userdata_t *data)
 
     UIPEthernetClass::network_send();
 }
-#endif
 
 

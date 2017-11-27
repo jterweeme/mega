@@ -1,4 +1,4 @@
-#include "util.h"
+#include "uip_timer.h"
 
 clock_time_t clock_time(void)
 {

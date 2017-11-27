@@ -4,6 +4,8 @@
 
 #define ETH_HDR ((struct uip_eth_hdr *)&uip_buf[0])
 
+extern uint32_t millis();
+
 memhandle UIPEthernetClass::in_packet(NOBLOCK);
 memhandle UIPEthernetClass::uip_packet(NOBLOCK);
 uint8_t UIPEthernetClass::uip_hdrlen(0);

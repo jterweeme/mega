@@ -2,7 +2,7 @@
 // (c) Copyright 2009-2010 MCQN Ltd.
 // Released under Apache License, version 2.0
 
-#include "util.h"
+#include "uip_timer.h"
 #include "dns.h"
 #include <string.h>
 

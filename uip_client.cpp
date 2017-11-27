@@ -4,6 +4,8 @@
 
 #define UIP_TCP_PHYH_LEN UIP_LLH_LEN+UIP_IPTCPH_LEN
 
+extern uint32_t millis();
+
 IPAddrezz::IPAddrezz(uint8_t oct1, uint8_t oct2, uint8_t third_octet, uint8_t fourth_octet)
 {
     _address.a8[0] = oct1;

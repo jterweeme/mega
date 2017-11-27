@@ -14,9 +14,6 @@ Mega eth CS: D53
 #define F_CPU 16000000UL
 #include <util/delay.h>
 
-EthernetServer server = EthernetServer(80);
-Fyle myFile;
-
 uint32_t g_millis = 0;
 
 ISR(TIMER0_OVF_vect)
@@ -41,6 +38,8 @@ int main()
     // 16,000,000/16,000 = 1000
     // 16,000 / 256 = 62
 
+    UIPServer server = UIPServer(80);
+    Fyle myFile;
     Serial serial;
     serial.init();
     TCCR0B = CS02; // | CS00;
@@ -49,15 +48,23 @@ int main()
 
     uint8_t mac[6] = {0x00,0x01,0x02,0x03,0x04,0x05};
     serial.write("begin ethernet\r\n");
-    //IPAddrezz myIP(192,168,200,56);
-    Ethernet.begin(mac);
+    IPAddrezz myIP(192,168,200,56);
+    UIPEthernet.begin(mac, myIP);
     serial.write("My IP address: \r\n");
-    uint32_t ip = Ethernet.localIP();
+    uint32_t ip = UIPEthernet.localIP();
     
     for (int8_t i = 7; i >= 0; i--)
         serial.write(nibble(ip >> (i << 2) & 0xf));
   
     serial.write("\r\n");
+
+    ZD zd;
+    
+    if (!zd.begin(9))
+    {
+        serial.write("SD initialization failed!\r\n");
+    }
+
     server.begin();
     
 
@@ -79,6 +86,7 @@ int main()
 
                     if (c == '\n' && currentLineIsBlank)
                     {
+                        myFile = zd.open("index.htm");
                         client.write("HTTP/1.1 200 OK\r\n");
                         client.write("Content-Type: text/html\r\n");
                         client.write("Connection: close\r\n");

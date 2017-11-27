@@ -54,14 +54,15 @@ int main()
     Fyle myFile;
     Serial serial;
     serial.init();
+    ZD zd;
 
-    if (!g_zd.begin(9))
+    if (!zd.begin(9))
     {
         serial.write("initialization failed!\r\n");
         return 0;
     }
 
-    myFile = g_zd.open("/");
+    myFile = zd.open("/");
     printDirectory(myFile, 0, serial);
 
     while (true)

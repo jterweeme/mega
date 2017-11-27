@@ -1,30 +1,203 @@
-/* Arduino Sd2Card Library
- * Copyright (C) 2009 by William Greiman
- *
- * This file is part of the Arduino Sd2Card Library
- *
- * This Library is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This Library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with the Arduino Sd2Card Library.  If not, see
- * <http://www.gnu.org/licenses/>.
- */
-#ifndef Sd2Card_h
-#define Sd2Card_h
-/**
- * \file
- * Sd2Card class
- */
-#include "zd2pinmap.h"
-#include "zdinfo.h"
+#ifndef _ZD2CARD_H_
+#define _ZD2CARD_H_
+#include <stdint.h>
+
+/** GO_IDLE_STATE - init card in spi mode if CS low */
+uint8_t const CMD0 = 0X00;
+/** SEND_IF_COND - verify SD Memory Card interface operating condition.*/
+uint8_t const CMD8 = 0X08;
+/** SEND_CSD - read the Card Specific Data (CSD register) */
+uint8_t const CMD9 = 0X09;
+/** SEND_CID - read the card identification information (CID register) */
+uint8_t const CMD10 = 0X0A;
+/** SEND_STATUS - read the card status register */
+uint8_t const CMD13 = 0X0D;
+/** READ_BLOCK - read a single data block from the card */
+uint8_t const CMD17 = 0X11;
+/** WRITE_BLOCK - write a single data block to the card */
+uint8_t const CMD24 = 0X18;
+/** WRITE_MULTIPLE_BLOCK - write blocks of data until a STOP_TRANSMISSION */
+uint8_t const CMD25 = 0X19;
+/** ERASE_WR_BLK_START - sets the address of the first block to be erased */
+uint8_t const CMD32 = 0X20;
+/** ERASE_WR_BLK_END - sets the address of the last block of the continuous
+    range to be erased*/
+uint8_t const CMD33 = 0X21;
+/** ERASE - erase all previously selected blocks */
+uint8_t const CMD38 = 0X26;
+/** APP_CMD - escape for application specific command */
+uint8_t const CMD55 = 0X37;
+/** READ_OCR - read the OCR register of a card */
+uint8_t const CMD58 = 0X3A;
+/** SET_WR_BLK_ERASE_COUNT - Set the number of write blocks to be
+     pre-erased before writing */
+uint8_t const ACMD23 = 0X17;
+/** SD_SEND_OP_COMD - Sends host capacity support information and
+    activates the card's initialization process */
+uint8_t const ACMD41 = 0X29;
+
+uint8_t const R1_READY_STATE = 0X00;
+/** status for card in the idle state */
+uint8_t const R1_IDLE_STATE = 0X01;
+/** status bit for illegal command */
+uint8_t const R1_ILLEGAL_COMMAND = 0X04;
+/** start data token for read or write single block*/
+uint8_t const DATA_START_BLOCK = 0XFE;
+/** stop token for write multiple blocks*/
+uint8_t const STOP_TRAN_TOKEN = 0XFD;
+/** start data token for write multiple blocks*/
+uint8_t const WRITE_MULTIPLE_TOKEN = 0XFC;
+/** mask for data response tokens after a write block operation */
+uint8_t const DATA_RES_MASK = 0X1F;
+/** write data accepted token */
+uint8_t const DATA_RES_ACCEPTED = 0X05;
+//------------------------------------------------------------------------------
+typedef struct CID {
+  // byte 0
+  uint8_t mid;  // Manufacturer ID
+  // byte 1-2
+  char oid[2];  // OEM/Application ID
+  // byte 3-7
+  char pnm[5];  // Product name
+  // byte 8
+  unsigned prv_m : 4;  // Product revision n.m
+  unsigned prv_n : 4;
+  // byte 9-12
+  uint32_t psn;  // Product serial number
+  // byte 13
+  unsigned mdt_year_high : 4;  // Manufacturing date
+  unsigned reserved : 4;
+  // byte 14
+  unsigned mdt_month : 4;
+  unsigned mdt_year_low :4;
+  // byte 15
+  unsigned always1 : 1;
+  unsigned crc : 7;
+}cid_t;
+
+
+typedef struct CSDV1 {
+  // byte 0
+  unsigned reserved1 : 6;
+  unsigned csd_ver : 2;
+  // byte 1
+  uint8_t taac;
+  // byte 2
+  uint8_t nsac;
+  // byte 3
+  uint8_t tran_speed;
+  // byte 4
+  uint8_t ccc_high;
+  // byte 5
+  unsigned read_bl_len : 4;
+  unsigned ccc_low : 4;
+  // byte 6
+  unsigned c_size_high : 2;
+  unsigned reserved2 : 2;
+  unsigned dsr_imp : 1;
+  unsigned read_blk_misalign :1;
+  unsigned write_blk_misalign : 1;
+  unsigned read_bl_partial : 1;
+  // byte 7
+  uint8_t c_size_mid;
+  // byte 8
+  unsigned vdd_r_curr_max : 3;
+  unsigned vdd_r_curr_min : 3;
+  unsigned c_size_low :2;
+  // byte 9
+  unsigned c_size_mult_high : 2;
+  unsigned vdd_w_cur_max : 3;
+  unsigned vdd_w_curr_min : 3;
+  // byte 10
+  unsigned sector_size_high : 6;
+  unsigned erase_blk_en : 1;
+  unsigned c_size_mult_low : 1;
+  // byte 11
+  unsigned wp_grp_size : 7;
+  unsigned sector_size_low : 1;
+  // byte 12
+  unsigned write_bl_len_high : 2;
+  unsigned r2w_factor : 3;
+  unsigned reserved3 : 2;
+  unsigned wp_grp_enable : 1;
+  // byte 13
+  unsigned reserved4 : 5;
+  unsigned write_partial : 1;
+  unsigned write_bl_len_low : 2;
+  // byte 14
+  unsigned reserved5: 2;
+  unsigned file_format : 2;
+  unsigned tmp_write_protect : 1;
+  unsigned perm_write_protect : 1;
+  unsigned copy : 1;
+  unsigned file_format_grp : 1;
+  // byte 15
+  unsigned always1 : 1;
+  unsigned crc : 7;
+}csd1_t;
+
+typedef struct CSDV2 {
+  // byte 0
+  unsigned reserved1 : 6;
+  unsigned csd_ver : 2;
+  // byte 1
+  uint8_t taac;
+  // byte 2
+  uint8_t nsac;
+  // byte 3
+  uint8_t tran_speed;
+  // byte 4
+  uint8_t ccc_high;
+  // byte 5
+  unsigned read_bl_len : 4;
+  unsigned ccc_low : 4;
+  // byte 6
+  unsigned reserved2 : 4;
+  unsigned dsr_imp : 1;
+  unsigned read_blk_misalign :1;
+  unsigned write_blk_misalign : 1;
+  unsigned read_bl_partial : 1;
+  // byte 7
+  unsigned reserved3 : 2;
+  unsigned c_size_high : 6;
+  // byte 8
+  uint8_t c_size_mid;
+  // byte 9
+  uint8_t c_size_low;
+  // byte 10
+  unsigned sector_size_high : 6;
+  unsigned erase_blk_en : 1;
+  unsigned reserved4 : 1;
+  // byte 11
+  unsigned wp_grp_size : 7;
+  unsigned sector_size_low : 1;
+  // byte 12
+  unsigned write_bl_len_high : 2;
+  unsigned r2w_factor : 3;
+  unsigned reserved5 : 2;
+  unsigned wp_grp_enable : 1;
+  // byte 13
+  unsigned reserved6 : 5;
+  unsigned write_partial : 1;
+  unsigned write_bl_len_low : 2;
+  // byte 14
+  unsigned reserved7: 2;
+  unsigned file_format : 2;
+  unsigned tmp_write_protect : 1;
+  unsigned perm_write_protect : 1;
+  unsigned copy : 1;
+  unsigned file_format_grp : 1;
+  // byte 15
+  unsigned always1 : 1;
+  unsigned crc : 7;
+}csd2_t;
+
+union csd_t {
+  csd1_t v1;
+  csd2_t v2;
+};
+
+
 /** Set SCK to max rate of F_CPU/2. See Sd2Card::setSckRate(). */
 uint8_t const SPI_FULL_SPEED = 0;
 /** Set SCK rate to F_CPU/4. See Sd2Card::setSckRate(). */
@@ -57,6 +230,13 @@ uint8_t const SPI_QUARTER_SPEED = 2;
  * master unless SS is set to output mode.
  */
 /** The default chip select pin for the SD card is SS. */
+
+uint8_t const SS_PIN = 53;
+uint8_t const MOSI_PIN = 51;
+uint8_t const MISO_PIN = 50;
+uint8_t const SCK_PIN = 52;
+
+
 uint8_t const  SD_CHIP_SELECT_PIN = SS_PIN;
 // The following three pins must not be redefined for hardware SPI.
 /** SPI Master Out Slave In pin */
@@ -149,10 +329,10 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
  * \class Sd2Card
  * \brief Raw access to SD and SDHC flash memory cards.
  */
-class Sd2Card {
- public:
-  /** Construct an instance of Sd2Card. */
-  Sd2Card(void) : errorCode_(0), inBlock_(0), partialBlockRead_(0), type_(0) {}
+class Sd2Card
+{
+public:
+  Sd2Card() : errorCode_(0), inBlock_(0), partialBlockRead_(0), type_(0) {}
   uint32_t cardSize(void);
   uint8_t erase(uint32_t firstBlock, uint32_t lastBlock);
   uint8_t eraseSingleBlockEnable(void);
@@ -194,9 +374,7 @@ class Sd2Card {
   /**
    * Read a cards CSD register. The CSD contains Card-Specific Data that
    * provides information regarding access to the card's contents. */
-  uint8_t readCSD(csd_t* csd) {
-    return readRegister(CMD9, csd);
-  }
+  uint8_t readCSD(csd_t* csd) { return readRegister(CMD9, csd); }
   void readEnd(void);
   uint8_t setSckRate(uint8_t sckRateID);
   /** Return the card type: SD V1, SD V2 or SDHC */
@@ -205,20 +383,22 @@ class Sd2Card {
   uint8_t writeData(const uint8_t* src);
   uint8_t writeStart(uint32_t blockNumber, uint32_t eraseCount);
   uint8_t writeStop(void);
- private:
-  uint32_t block_;
-  uint8_t chipSelectPin_;
-  uint8_t errorCode_;
-  uint8_t inBlock_;
-  uint16_t offset_;
-  uint8_t partialBlockRead_;
-  uint8_t status_;
-  uint8_t type_;
-  // private functions
-  uint8_t cardAcmd(uint8_t cmd, uint32_t arg) {
-    cardCommand(CMD55, 0);
-    return cardCommand(cmd, arg);
-  }
+private:
+    uint32_t block_;
+    uint8_t chipSelectPin_;
+    uint8_t errorCode_;
+    uint8_t inBlock_;
+    uint16_t offset_;
+    uint8_t partialBlockRead_;
+    uint8_t status_;
+    uint8_t type_;
+
+    uint8_t cardAcmd(uint8_t cmd, uint32_t arg)
+    {
+        cardCommand(CMD55, 0);
+        return cardCommand(cmd, arg);
+    }
+
   uint8_t cardCommand(uint8_t cmd, uint32_t arg);
   void error(uint8_t code) {errorCode_ = code;}
   uint8_t readRegister(uint8_t cmd, void* buf);
@@ -230,4 +410,6 @@ class Sd2Card {
   uint8_t writeData(uint8_t token, const uint8_t* src);
   uint8_t waitStartBlock(void);
 };
-#endif  // Sd2Card_h
+#endif
+
+
