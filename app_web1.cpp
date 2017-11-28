@@ -33,6 +33,31 @@ inline char nibble(uint8_t n)
 
 static uint8_t g_count = 0;
 
+class Buffer
+{
+    char _buf[512] = {0};
+    uint16_t _pos = 0;
+public:
+    void push(char c) { _buf[_pos++] = c; }
+    char *get() { return _buf; }
+    void reset();
+    bool end() const;
+};
+
+bool Buffer::end() const
+{
+    return _buf[_pos - 4] == 0x0d && _buf[_pos - 3] == 0x0a && _buf[_pos - 2] == 0x0d &&
+        _buf[_pos - 1] == 0x0a ? true : false;
+}
+
+void Buffer::reset()
+{
+    _pos = 0;
+
+    for (uint16_t i = 0; i < 512; i++)
+        _buf[i] = 0;
+}
+
 int main()
 {
     // 16,000,000/16,000 = 1000
@@ -66,7 +91,7 @@ int main()
     }
 
     server.begin();
-    
+    Buffer buffer;
 
     while (true)
     {
@@ -82,28 +107,64 @@ int main()
                 if (client.available())
                 {
                     char c = client.read();
-                    serial.write(c);
+                    buffer.push(c);
 
-                    if (c == '\n' && currentLineIsBlank)
+                    if (buffer.end())
                     {
-                        myFile = zd.open("index.htm");
-                        client.write("HTTP/1.1 200 OK\r\n");
-                        client.write("Content-Type: text/html\r\n");
-                        client.write("Connection: close\r\n");
-                        client.write("Refresh: 5\r\n\r\n");
-                        
-                        if (myFile)
-                            while (myFile.available())
-                                client.write(myFile.read());
+                        if (strncmp("GET ", buffer.get(), 4) == 0)
+                        {
+                            char fn[100] = {0};
+                            char ext[10] = {0};
+                            
+                            for (uint16_t i = 5; i < 512; i++)
+                            {
+                                if (buffer.get()[i] != ' ')
+                                    fn[i - 5] = buffer.get()[i];
+                                else
+                                    break;
+                            }
+                            
+                            if (fn[0] == 0)
+                                strncpy(fn, "index.htm", 100);
 
-                        myFile.close();
+                            size_t dot = 0;
+
+                            for (uint8_t i = 0; i < strlen(fn); i++)
+                                if (fn[i] == '.')
+                                    dot = i;
+
+                            for (char *p = fn + dot + 1, *d = ext; *p != 0; p++)
+                                *d++ = *p;
+                            
+                            serial.write(ext);
+                            serial.write("\r\n");
+                            serial.write(fn);
+                            serial.write("\r\n");
+                            serial.write(buffer.get());
+                            myFile = zd.open(fn);
+                            client.write("HTTP/1.1 200 OK\r\n");
+
+                            if (strncmp(ext, "svg", 3) == 0)
+                                client.write("Content-Type: image/svg+xml\r\n");
+                            else
+                                client.write("Content-Type: text/html\r\n");
+
+                            client.write("Connection: close\r\n\r\n");  // let op de dubbel nl
+                        
+                            if (myFile)
+                                while (myFile.available())
+                                    client.write(myFile.read());
+
+                            myFile.close();                               
+                        }
+                        else if (strncmp("PUT ", buffer.get(), 4) == 0)
+                        {
+                            serial.write(buffer.get());
+                        }
+
+                        buffer.reset();
                         break;
                     }
-
-                    if (c == '\n')
-                        currentLineIsBlank = true;
-                    else if (c != '\r')
-                        currentLineIsBlank = false;
                 }
             }
             _delay_ms(1);
