@@ -46,7 +46,7 @@ zdfat.o: zdfat.cpp
 download:
 	avrdude -c stk500 -p m2560 -P /dev/ttyUSB0 -U $(APP)
 
-arduino:
+wiring:
 	avrdude -c wiring -p m2560 -P /dev/ttyACM0 -U $(APP)
 
 clean:

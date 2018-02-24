@@ -44,7 +44,7 @@ int main()
 
     uint8_t mac[6] = {0x00,0x01,0x02,0x03,0x04,0x05};
     serial.write("begin ethernet\r\n");
-    IPAddrezz myIP(192,168,200,56);
+    IPAddrezz myIP(192,168,178,32);
     UIPEthernet.begin(mac, myIP);
     serial.write("My IP address: \r\n");
     uint32_t ip = UIPEthernet.localIP();
